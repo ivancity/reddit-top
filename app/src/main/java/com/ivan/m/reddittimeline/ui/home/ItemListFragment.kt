@@ -1,20 +1,22 @@
-package com.ivan.m.reddittimeline
+package com.ivan.m.reddittimeline.ui.home
 
 import android.os.Build
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.ivan.m.reddittimeline.placeholder.PlaceholderContent;
+import com.ivan.m.reddittimeline.R
+import com.ivan.m.reddittimeline.ui.placeholder.PlaceholderContent;
 import com.ivan.m.reddittimeline.databinding.FragmentItemListBinding
 import com.ivan.m.reddittimeline.databinding.ItemListContentBinding
+import com.ivan.m.reddittimeline.dependency.Injection
+import com.ivan.m.reddittimeline.ui.detail.ItemDetailFragment
 
 /**
  * A Fragment representing a list of Pings. This fragment
@@ -27,33 +29,9 @@ import com.ivan.m.reddittimeline.databinding.ItemListContentBinding
 
 class ItemListFragment : Fragment() {
 
-    /**
-     * Method to intercept global key events in the
-     * item list fragment to trigger keyboard shortcuts
-     * Currently provides a toast when Ctrl + Z and Ctrl + F
-     * are triggered
-     */
-    private val unhandledKeyEventListenerCompat =
-        ViewCompat.OnUnhandledKeyEventListenerCompat { v, event ->
-            if (event.keyCode == KeyEvent.KEYCODE_Z && event.isCtrlPressed) {
-                Toast.makeText(
-                    v.context,
-                    "Undo (Ctrl + Z) shortcut triggered",
-                    Toast.LENGTH_LONG
-                ).show()
-                true
-            } else if (event.keyCode == KeyEvent.KEYCODE_F && event.isCtrlPressed) {
-                Toast.makeText(
-                    v.context,
-                    "Find (Ctrl + F) shortcut triggered",
-                    Toast.LENGTH_LONG
-                ).show()
-                true
-            }
-            false
-        }
-
     private var _binding: FragmentItemListBinding? = null
+
+    private lateinit var viewModel: HomeListViewModel
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -63,16 +41,18 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentItemListBinding.inflate(inflater, container, false)
-        return binding.root
 
+        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory(this.requireContext()))
+            .get(HomeListViewModel::class.java)
+
+        viewModel.start()
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        ViewCompat.addOnUnhandledKeyEventListener(view, unhandledKeyEventListenerCompat)
 
         val recyclerView: RecyclerView = binding.itemList
 
