@@ -37,9 +37,11 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+    implementation "androidx.appcompat:appcompat:$supportLibVersion"
+    // try this fragment
+    // implementation 'androidx.fragment:fragment
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigation"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigation"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
     implementation "androidx.appcompat:appcompat:$supportLibVersion"
@@ -55,6 +57,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
+    implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 
     // retrofit

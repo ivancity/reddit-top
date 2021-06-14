@@ -1,5 +1,6 @@
 package com.ivan.m.reddittimeline.ui.home
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -16,6 +18,7 @@ import com.ivan.m.reddittimeline.ui.placeholder.PlaceholderContent;
 import com.ivan.m.reddittimeline.databinding.FragmentItemListBinding
 import com.ivan.m.reddittimeline.databinding.ItemListContentBinding
 import com.ivan.m.reddittimeline.dependency.Injection
+import com.ivan.m.reddittimeline.repo.USER_PREFERENCES
 import com.ivan.m.reddittimeline.ui.detail.ItemDetailFragment
 
 /**
@@ -26,6 +29,10 @@ import com.ivan.m.reddittimeline.ui.detail.ItemDetailFragment
  * item details. On larger screens, the Navigation controller presents the list of items and
  * item details side-by-side using two vertical panes.
  */
+
+val Context.dataStore by preferencesDataStore(
+    name = USER_PREFERENCES
+)
 
 class ItemListFragment : Fragment() {
 
