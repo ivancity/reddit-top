@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import com.ivan.m.reddittimeline.model.data.UserPreferences
 import com.ivan.m.reddittimeline.model.response.AccessTokenResponse
+import com.ivan.m.reddittimeline.model.response.TopPostResponse
 import com.ivan.m.reddittimeline.services.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,8 @@ import java.io.IOException
 const val USER_PREFERENCES = "reddit_user_preferences"
 
 class MainRepository(
-    private val service: ApiService,
+    private var loginService: ApiService,
+    private var service: ApiService,
     private val dataStore: DataStore<Preferences>
 ) {
 
@@ -45,12 +47,20 @@ class MainRepository(
 
      suspend fun getAccessToken(): AccessTokenResponse {
          return withContext(Dispatchers.IO) {
-             return@withContext service.getToken(
+             return@withContext loginService.getToken(
                  Credentials.basic("j29rupiuzagrHw", ""),
                  "https://oauth.reddit.com/grants/installed_client",
                  "DO_NOT_TRACK_THIS_DEVICE"
              )
          }
+    }
+
+    suspend fun getPosts(token: String): TopPostResponse {
+        return withContext(Dispatchers.IO) {
+            service.fetchPosts(
+                token = "Bearer $token"
+            )
+        }
     }
 
     suspend fun updateUserSettings(accessToken: String, expiresIn: Long): UserPreferences {
@@ -63,6 +73,5 @@ class MainRepository(
             val expires = preferences[PreferencesKeys.EXPIRES_IN] ?: 0
             UserPreferences(token, expires)
         }
-
     }
 }

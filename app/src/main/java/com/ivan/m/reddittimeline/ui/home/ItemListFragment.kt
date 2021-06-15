@@ -53,7 +53,11 @@ class ItemListFragment : Fragment() {
         viewModel = ViewModelProvider(this, Injection.provideViewModelFactory(this.requireContext()))
             .get(HomeListViewModel::class.java)
 
-        viewModel.start()
+        //viewModel.start()
+
+        viewModel.homeUi.observe(viewLifecycleOwner) { homeUi ->
+            Toast.makeText(context, "Test", Toast.LENGTH_LONG).show()
+        }
 
         return binding.root
     }
