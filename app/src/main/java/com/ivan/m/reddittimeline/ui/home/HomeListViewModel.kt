@@ -8,6 +8,7 @@ import com.ivan.m.reddittimeline.repo.MainRepository
 import androidx.lifecycle.viewModelScope
 import com.ivan.m.reddittimeline.model.data.UserPreferences
 import com.ivan.m.reddittimeline.model.ui.HomeUi
+import com.ivan.m.reddittimeline.model.ui.ListItem
 import com.ivan.m.reddittimeline.model.ui.UiStatus
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow

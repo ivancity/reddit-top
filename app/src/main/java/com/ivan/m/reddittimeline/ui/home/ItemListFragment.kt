@@ -1,7 +1,6 @@
 package com.ivan.m.reddittimeline.ui.home
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -142,9 +141,7 @@ class ItemListFragment : Fragment() {
             with(holder.itemView) {
                 tag = item
                 setOnClickListener(onClickListener)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    setOnContextClickListener(onContextClickListener)
-                }
+                setOnContextClickListener(onContextClickListener)
             }
         }
 

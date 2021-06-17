@@ -1,4 +1,4 @@
-package com.ivan.m.reddittimeline.ui.home
+package com.ivan.m.reddittimeline.model.ui
 
 data class ListItem(
     val id: String,
