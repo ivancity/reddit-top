@@ -70,12 +70,11 @@ class PostRemoteMediator(
                 val beforeKey = response.data?.before
                 val afterKey = response.data?.after
 
-                val counter: Int? = if (postsResponse.count() == 0) {
-                    null
-                } else {
-                    postsResponse.count()
+                val counterResult = postsResponse.count() + (keyCountModel.counter ?: 0)
+                var counter: Int? = null
+                if (counterResult > 0) {
+                    counter = counterResult
                 }
-
                 val keys = postsResponse.map {
                     RemoteKeys(
                         keyName = it.data.name,

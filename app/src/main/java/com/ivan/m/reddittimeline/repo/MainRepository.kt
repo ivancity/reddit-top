@@ -3,9 +3,11 @@ package com.ivan.m.reddittimeline.repo
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.ivan.m.reddittimeline.model.PostRemoteMediator
 import com.ivan.m.reddittimeline.model.data.UserPreferences
 import com.ivan.m.reddittimeline.model.data.db.PostDatabase
 import com.ivan.m.reddittimeline.model.data.db.Posts
@@ -15,7 +17,9 @@ import com.ivan.m.reddittimeline.services.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Credentials
 import java.io.IOException
@@ -69,11 +73,21 @@ class MainRepository(
         }
     }
 
+    @ExperimentalPagingApi
     fun getAllPosts(): Flow<PagingData<Posts>> {
         val pagingSourceFactory = { database.postDao().allPosts() }
+        val preferences = runBlocking { dataStore.data.first() }
+
+        // TODO make sure that access token is empty or not
+        val accessToken = preferences[PreferencesKeys.ACCESS_TOKEN] ?: ""
+
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            remoteMediator = ,// TODO create a RemoteMediator,
+            remoteMediator = PostRemoteMediator(
+                service = service,
+                database = database,
+                token = accessToken
+            ),
             pagingSourceFactory = pagingSourceFactory
         ).flow
     }
