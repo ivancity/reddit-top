@@ -5,6 +5,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import com.ivan.m.reddittimeline.model.data.KeyCountModel
 import com.ivan.m.reddittimeline.model.data.db.PostDatabase
 import com.ivan.m.reddittimeline.model.data.db.Posts
 import com.ivan.m.reddittimeline.model.data.db.RemoteKeys
@@ -20,19 +21,24 @@ class PostRemoteMediator(
 ) : RemoteMediator<Int, Posts>() {
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Posts>): MediatorResult {
-        //TODO(reason = "Change page String to a model KeyCounter for handling paging in reddit")
-        val page: String? = when (loadType) {
+        val keyCountModel: KeyCountModel = when (loadType) {
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
-                remoteKeys?.prevKey
+                KeyCountModel(
+                    keyName = remoteKeys?.prevKey,
+                    counter = remoteKeys?.counter
+                )
             }
             LoadType.PREPEND -> {
-                var remoteKeys = getRemoteKeyForFirstItem(state)
+                val remoteKeys = getRemoteKeyForFirstItem(state)
                 val prevKey = remoteKeys?.prevKey
                 if (prevKey == null) {
                     return  MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
                 }
-                prevKey
+                KeyCountModel(
+                    keyName = prevKey,
+                    counter = remoteKeys.counter
+                )
             }
             LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeyForLastItem(state)
@@ -40,15 +46,18 @@ class PostRemoteMediator(
                 if (nextKey == null) {
                     return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
                 }
-                nextKey
+                KeyCountModel(
+                    keyName = nextKey,
+                    counter = remoteKeys.counter
+                )
             }
         }
 
         try {
             val response = service.fetchPosts(
                 token = token,
-                after = page,
-                count = 0 // This will change for a KeyCounter model soon
+                after = keyCountModel.keyName,
+                count = keyCountModel.counter
             )
 
             val postsResponse = response.data?.children ?: emptyList()
@@ -88,7 +97,6 @@ class PostRemoteMediator(
                 database.remoteKeysDao().insertAll(keys)
                 database.postDao().insertAll(posts)
             }
-
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (exception: IOException) {
             return MediatorResult.Error(exception)
@@ -120,5 +128,4 @@ class PostRemoteMediator(
             }
         }
     }
-
 }
