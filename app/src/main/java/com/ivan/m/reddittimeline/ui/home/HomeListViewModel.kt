@@ -36,7 +36,7 @@ class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
             }
 
             val list: List<ListItem> = children.mapNotNull { child ->
-                if (child.data?.id == null ||
+                if (child.data?.name == null ||
                     child.data.author == null ||
                     child.data.created == null ||
                     child.data.title == null ||
@@ -46,7 +46,7 @@ class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
                 }
 
                 return@mapNotNull ListItem(
-                    id = child.data.id,
+                    id = child.data.name,
                     author = child.data.author,
                     created = child.data.created,
                     title = child.data.title,

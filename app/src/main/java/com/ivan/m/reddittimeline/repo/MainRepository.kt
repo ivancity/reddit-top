@@ -3,7 +3,12 @@ package com.ivan.m.reddittimeline.repo
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.ivan.m.reddittimeline.model.data.UserPreferences
+import com.ivan.m.reddittimeline.model.data.db.PostDatabase
+import com.ivan.m.reddittimeline.model.data.db.Posts
 import com.ivan.m.reddittimeline.model.response.AccessTokenResponse
 import com.ivan.m.reddittimeline.model.response.TopPostResponse
 import com.ivan.m.reddittimeline.services.ApiService
@@ -20,7 +25,8 @@ const val USER_PREFERENCES = "reddit_user_preferences"
 class MainRepository(
     private var loginService: ApiService,
     private var service: ApiService,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val database: PostDatabase
 ) {
 
     private val TAG: String = "MainRepository"
@@ -63,6 +69,16 @@ class MainRepository(
         }
     }
 
+    fun getAllPosts(): Flow<PagingData<Posts>> {
+        val pagingSourceFactory = { database.postDao().allPosts() }
+        return Pager(
+            config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
+            remoteMediator = ,// TODO create a RemoteMediator,
+            pagingSourceFactory = pagingSourceFactory
+        ).flow
+    }
+
+
     suspend fun updateUserSettings(accessToken: String, expiresIn: Long): UserPreferences {
         return withContext(Dispatchers.IO) {
             val preferences = dataStore.edit { preferences ->
@@ -73,5 +89,9 @@ class MainRepository(
             val expires = preferences[PreferencesKeys.EXPIRES_IN] ?: 0
             UserPreferences(token, expires)
         }
+    }
+
+    companion object {
+        private const val NETWORK_PAGE_SIZE = 50
     }
 }

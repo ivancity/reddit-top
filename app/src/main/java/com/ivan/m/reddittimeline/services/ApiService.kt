@@ -20,7 +20,11 @@ interface ApiService {
 
 
     @GET(GET_POSTS_URL)
-    suspend fun fetchPosts(@Header("Authorization") token: String): TopPostResponse
+    suspend fun fetchPosts(@Header("Authorization") token: String,
+        @Query("after") after: String? = null,
+        @Query("before") before: String? = null,
+        @Query("count") count: Int? = null
+    ): TopPostResponse
 
     companion object {
         fun create(baseUrl: String): ApiService {

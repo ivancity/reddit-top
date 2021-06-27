@@ -6,4 +6,5 @@ data class ListItem(
     val created: Long,
     val title: String,
     val commentsCounter: Long,
-    val thumbnail: String)
+    val thumbnail: String
+)

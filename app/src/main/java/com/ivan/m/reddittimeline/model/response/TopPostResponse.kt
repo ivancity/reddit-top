@@ -8,14 +8,14 @@ data class TopPostResponse (
 
 data class TopPostResponseData (
     val dist: Long? = null,
-    val children: List<Child>? = null,
+    val children: List<Child> = emptyList(),
     val after: String? = null,
     val before: String? = null
 )
 
 data class Child (
     val kind: String? = null,
-    val data: ChildData? = null
+    val data: ChildData
 )
 
 data class ChildData (
@@ -24,7 +24,7 @@ data class ChildData (
 
     val clicked: Boolean? = null,
     val title: String? = null,
-    val name: String? = null,
+    val name: String,
     val thumbnail: String? = null,
 
     @SerializedName("post_hint")

@@ -2,6 +2,7 @@ package com.ivan.m.reddittimeline.dependency
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.ivan.m.reddittimeline.model.data.db.PostDatabase
 import com.ivan.m.reddittimeline.repo.MainRepository
 import com.ivan.m.reddittimeline.services.ApiService
 import com.ivan.m.reddittimeline.services.NetworkConstants.BASE_URL
@@ -14,7 +15,8 @@ object Injection {
         return MainRepository(
             ApiService.create(BASE_URL),
             ApiService.create(SECURED_BASE_URL),
-            context.dataStore
+            context.dataStore,
+            PostDatabase.getInstance(context)
         )
     }
 
