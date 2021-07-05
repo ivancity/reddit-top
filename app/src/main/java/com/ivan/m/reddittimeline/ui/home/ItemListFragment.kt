@@ -124,6 +124,8 @@ class ItemListFragment : Fragment() {
             onClickListener = onClickListener,
             onContextClickListener = onContextClickListener
         )
+
+        binding.retryButton?.setOnClickListener { adapter.retry() }
     }
 
     override fun onDestroyView() {
@@ -154,8 +156,14 @@ class ItemListFragment : Fragment() {
 
             // show empty list
             val isListEmpty = loadState.refresh is LoadState.NotLoading && adapter.itemCount == 0
-//            showEmptyList(isListEmpty)
+            showEmptyList(isListEmpty)
 
+            // Show a retry header if there was an error refreshing, and items were previously
+            // cached OR default to the default prepend state
+            header.loadState = loadState.mediator
+                ?.refresh
+                ?.takeIf { it is LoadState.Error && adapter.itemCount > 0 }
+                ?: loadState.prepend
 
             _binding!!.itemList.isVisible = loadState.mediator?.refresh is LoadState.NotLoading
                     || loadState.mediator?.refresh is LoadState.NotLoading
@@ -189,6 +197,16 @@ class ItemListFragment : Fragment() {
             onClickListener,
             onContextClickListener
         )
+    }
+
+    private fun showEmptyList(show: Boolean) {
+        if (show) {
+            binding.emptyList?.visibility = View.VISIBLE
+            binding.itemList.visibility = View.GONE
+        } else {
+            binding.emptyList?.visibility = View.GONE
+            binding.itemList.visibility = View.VISIBLE
+        }
     }
 
     @ExperimentalPagingApi
