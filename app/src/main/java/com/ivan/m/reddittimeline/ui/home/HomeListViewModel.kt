@@ -91,7 +91,7 @@ class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
-    @ExperimentalPagingApi
+    @OptIn(ExperimentalPagingApi::class)
     fun getPosts(): Flow<PagingData<ListItem>> {
         val lastResult = currentResult
         if (lastResult != null) {

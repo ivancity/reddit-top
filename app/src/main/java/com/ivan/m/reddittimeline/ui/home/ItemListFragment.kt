@@ -24,7 +24,10 @@ import com.ivan.m.reddittimeline.dependency.Injection
 import com.ivan.m.reddittimeline.repo.USER_PREFERENCES
 import com.ivan.m.reddittimeline.ui.detail.ItemDetailFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 /**
@@ -124,13 +127,23 @@ class ItemListFragment : Fragment() {
             onClickListener = onClickListener,
             onContextClickListener = onContextClickListener
         )
-
+        fetchPosts()
         binding.retryButton?.setOnClickListener { adapter.retry() }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun fetchPosts() {
+        // Make sure we cancel the previous job before creating a new one
+        fetchJob?.cancel()
+        fetchJob = lifecycleScope.launch {
+            viewModel.getPosts().collectLatest {
+                adapter.submitData(it)
+            }
+        }
     }
 
     private fun initAdapter(
@@ -184,6 +197,16 @@ class ItemListFragment : Fragment() {
                 ).show()
             }
         }
+
+        lifecycleScope.launch {
+            adapter.loadStateFlow
+                // Only emit when REFRESH LoadState for RemoteMediator changes.
+                .distinctUntilChangedBy { it.refresh }
+                // Only react to cases where Remote REFRESH completes i.e., NotLoading.
+                .filter { it.refresh is LoadState.NotLoading }
+                .collect { _binding?.itemList?.scrollToPosition(0) }
+        }
+
     }
 
     private fun setupRecyclerView(
