@@ -55,7 +55,7 @@ class PostRemoteMediator(
 
         try {
             val response = service.fetchPosts(
-                token = token,
+                token = "Bearer $token",
                 after = keyCountModel.keyName,
                 count = keyCountModel.counter
             )
@@ -105,7 +105,7 @@ class PostRemoteMediator(
     }
 
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, Posts>): RemoteKeys? {
-        return state.pages.lastOrNull() { it.data.isNotEmpty() }?.data?.firstOrNull()
+        return state.pages.lastOrNull() { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { posts ->
                 database.remoteKeysDao().remoteKeysKeyName(posts.id)
             }

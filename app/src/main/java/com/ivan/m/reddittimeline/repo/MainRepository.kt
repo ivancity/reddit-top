@@ -73,14 +73,12 @@ class MainRepository(
         }
     }
 
-    @ExperimentalPagingApi
     fun getAllPosts(): Flow<PagingData<Posts>> {
         val pagingSourceFactory = { database.postDao().allPosts() }
         val preferences = runBlocking { dataStore.data.first() }
 
-        // TODO make sure that access token is empty or not
         val accessToken = preferences[PreferencesKeys.ACCESS_TOKEN] ?: ""
-
+        @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
             remoteMediator = PostRemoteMediator(

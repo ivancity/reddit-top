@@ -68,9 +68,9 @@ class ItemListFragment : Fragment() {
 
         //viewModel.start()
 
-        viewModel.homeUi.observe(viewLifecycleOwner) { homeUi ->
-            Toast.makeText(context, "Test", Toast.LENGTH_LONG).show()
-        }
+//        viewModel.homeUi.observe(viewLifecycleOwner) { homeUi ->
+//            Toast.makeText(context, "Test", Toast.LENGTH_LONG).show()
+//        }
 
         return binding.root
     }
@@ -140,6 +140,7 @@ class ItemListFragment : Fragment() {
         // Make sure we cancel the previous job before creating a new one
         fetchJob?.cancel()
         fetchJob = lifecycleScope.launch {
+            viewModel.initAccessToken()
             viewModel.getPosts().collectLatest {
                 adapter.submitData(it)
             }
@@ -229,16 +230,6 @@ class ItemListFragment : Fragment() {
         } else {
             binding.emptyList?.visibility = View.GONE
             binding.itemList.visibility = View.VISIBLE
-        }
-    }
-
-    @ExperimentalPagingApi
-    private fun fetchItems() {
-        fetchJob?.cancel()
-        fetchJob = lifecycleScope.launch {
-            viewModel.getPosts().collectLatest {
-
-            }
         }
     }
 
