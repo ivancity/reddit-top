@@ -1,4 +1,4 @@
-package com.ivan.m.reddittimeline.placeholder
+package com.ivan.m.reddittimeline.ui.placeholder
 
 import java.util.ArrayList
 import java.util.HashMap

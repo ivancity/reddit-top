@@ -1,13 +1,12 @@
-package com.ivan.m.reddittimeline
+package com.ivan.m.reddittimeline.ui.detail
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.ivan.m.reddittimeline.placeholder.PlaceholderContent
+import com.ivan.m.reddittimeline.ui.placeholder.PlaceholderContent
 import com.ivan.m.reddittimeline.databinding.FragmentItemDetailBinding
 
 /**
