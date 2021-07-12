@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.datastore.preferences.preferencesDataStore
@@ -13,17 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView
 import com.ivan.m.reddittimeline.R
-import com.ivan.m.reddittimeline.ui.placeholder.PlaceholderContent;
+import com.ivan.m.reddittimeline.ui.placeholder.PlaceholderContent
 import com.ivan.m.reddittimeline.databinding.FragmentItemListBinding
-import com.ivan.m.reddittimeline.databinding.ItemListContentBinding
 import com.ivan.m.reddittimeline.dependency.Injection
 import com.ivan.m.reddittimeline.repo.USER_PREFERENCES
 import com.ivan.m.reddittimeline.ui.detail.ItemDetailFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -54,7 +51,6 @@ class ItemListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var fetchJob: Job? = null
-//    private var adapter: PostsAdapter? = null// call initAdapter instead
     private lateinit var adapter: PostsAdapter// call initAdapter instead
 
     override fun onCreateView(
@@ -66,19 +62,11 @@ class ItemListFragment : Fragment() {
         viewModel = ViewModelProvider(this, Injection.provideViewModelFactory(this.requireContext()))
             .get(HomeListViewModel::class.java)
 
-        //viewModel.start()
-
-//        viewModel.homeUi.observe(viewLifecycleOwner) { homeUi ->
-//            Toast.makeText(context, "Test", Toast.LENGTH_LONG).show()
-//        }
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val recyclerView: RecyclerView = binding.itemList
 
         // Leaving this not using view binding as it relies on if the view is visible the current
         // layout configuration (layout, layout-sw600dp)
@@ -117,12 +105,6 @@ class ItemListFragment : Fragment() {
             true
         }
 
-//        setupRecyclerView(
-//            recyclerView = recyclerView,
-//            onClickListener = onClickListener,
-//            onContextClickListener = onContextClickListener
-//        )
-
         initAdapter(
             onClickListener = onClickListener,
             onContextClickListener = onContextClickListener
@@ -140,6 +122,7 @@ class ItemListFragment : Fragment() {
         // Make sure we cancel the previous job before creating a new one
         fetchJob?.cancel()
         fetchJob = lifecycleScope.launch {
+            ensureActive()
             viewModel.initAccessToken()
             viewModel.getPosts().collectLatest {
                 adapter.submitData(it)
@@ -210,19 +193,6 @@ class ItemListFragment : Fragment() {
 
     }
 
-    private fun setupRecyclerView(
-        recyclerView: RecyclerView,
-        onClickListener: View.OnClickListener,
-        onContextClickListener: View.OnContextClickListener
-    ) {
-
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(
-            PlaceholderContent.ITEMS,
-            onClickListener,
-            onContextClickListener
-        )
-    }
-
     private fun showEmptyList(show: Boolean) {
         if (show) {
             binding.emptyList?.visibility = View.VISIBLE
@@ -230,40 +200,6 @@ class ItemListFragment : Fragment() {
         } else {
             binding.emptyList?.visibility = View.GONE
             binding.itemList.visibility = View.VISIBLE
-        }
-    }
-
-    class SimpleItemRecyclerViewAdapter(
-        private val values: List<PlaceholderContent.PlaceholderItem>,
-        private val onClickListener: View.OnClickListener,
-        private val onContextClickListener: View.OnContextClickListener
-    ) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val binding =
-                ItemListContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return ViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-            holder.idView.text = item.id
-            holder.contentView.text = item.content
-
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener(onClickListener)
-                setOnContextClickListener(onContextClickListener)
-            }
-        }
-
-        override fun getItemCount() = values.size
-
-        inner class ViewHolder(binding: ItemListContentBinding) :
-            RecyclerView.ViewHolder(binding.root) {
-            val idView: TextView = binding.idText
-            val contentView: TextView = binding.content
         }
     }
 }

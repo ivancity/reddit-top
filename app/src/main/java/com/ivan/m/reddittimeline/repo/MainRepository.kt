@@ -12,7 +12,6 @@ import com.ivan.m.reddittimeline.model.data.UserPreferences
 import com.ivan.m.reddittimeline.model.data.db.PostDatabase
 import com.ivan.m.reddittimeline.model.data.db.Posts
 import com.ivan.m.reddittimeline.model.response.AccessTokenResponse
-import com.ivan.m.reddittimeline.model.response.TopPostResponse
 import com.ivan.m.reddittimeline.services.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -63,14 +62,6 @@ class MainRepository(
                  "DO_NOT_TRACK_THIS_DEVICE"
              )
          }
-    }
-
-    suspend fun getPosts(token: String): TopPostResponse {
-        return withContext(Dispatchers.IO) {
-            service.fetchPosts(
-                token = "Bearer $token"
-            )
-        }
     }
 
     fun getAllPosts(): Flow<PagingData<Posts>> {

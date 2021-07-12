@@ -1,84 +1,32 @@
 package com.ivan.m.reddittimeline.ui.home
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import com.ivan.m.reddittimeline.repo.MainRepository
 import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.ivan.m.reddittimeline.model.data.UserPreferences
-import com.ivan.m.reddittimeline.model.ui.HomeUi
 import com.ivan.m.reddittimeline.model.ui.ListItem
-import com.ivan.m.reddittimeline.model.ui.UiStatus
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import retrofit2.HttpException
 
 class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
 
     private val userPreferences: Flow<UserPreferences> = repository.userPreferencesFlow
-
     private var currentResult: Flow<PagingData<ListItem>>? = null
-
     private val TAG: String = "HomeListViewModel"
-
-//    val homeUi: LiveData<HomeUi> = userPreferences
-//        .mapLatest { userPreferences ->
-//            if (userPreferences.accessToken.isEmpty()) {
-//                start()
-//                return@mapLatest HomeUi(status = UiStatus.EMPTY, emptyList())
-//            }
-//
-//            val response = repository.getPosts(userPreferences.accessToken)
-//            val children = response.data?.children
-//            if (children.isNullOrEmpty()) {
-//                return@mapLatest HomeUi(status = UiStatus.EMPTY, emptyList())
-//            }
-//
-//            val list: List<ListItem> = children.mapNotNull { child ->
-//                if (child.data.author == null
-//                    || child.data.created == null
-//                    || child.data.title == null
-//                    || child.data.numComments == null
-//                    || child.data.thumbnail == null) {
-//                    return@mapNotNull null
-//                }
-//
-//                return@mapNotNull ListItem(
-//                    id = child.data.name,
-//                    author = child.data.author,
-//                    created = child.data.created,
-//                    title = child.data.title,
-//                    commentsCounter = child.data.numComments,
-//                    thumbnail = child.data.thumbnail
-//                )
-//            }
-//
-//            return@mapLatest HomeUi(status = UiStatus.VALID, items = list)
-//        }
-//        .catch() { exception ->
-//            if (exception is HttpException) {
-//                if (exception.code() == 401) {
-//                    start()
-//                }
-//                emit(HomeUi(status = UiStatus.ERROR, items = emptyList()))
-//            } else {
-//                throw exception
-//            }
-//        }
-//        .asLiveData()
+    private var fetchTokenJob: Job? = null
 
     private fun start() {
-        viewModelScope.launch {
+        fetchTokenJob?.cancel()
+        fetchTokenJob = viewModelScope.launch {
             try {
                 val response = repository.getAccessToken()
                 ensureActive()
                 // write to DataStore
-                val rest = repository.updateUserSettings(
+                repository.updateUserSettings(
                     response.accessToken,
                     response.expiresIn
                 )
@@ -91,9 +39,8 @@ class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
     suspend fun initAccessToken() {
         try {
             val response = repository.getAccessToken()
-//            ensureActive()
             // write to DataStore
-            val rest = repository.updateUserSettings(
+            repository.updateUserSettings(
                 response.accessToken,
                 response.expiresIn
             )
@@ -123,8 +70,5 @@ class HomeListViewModel(private val repository: MainRepository) : ViewModel() {
         currentResult = newResult
         return newResult
     }
-
-
-
 }
 
