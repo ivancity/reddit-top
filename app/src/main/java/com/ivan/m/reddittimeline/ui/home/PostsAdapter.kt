@@ -3,10 +3,10 @@ package com.ivan.m.reddittimeline.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.ivan.m.reddittimeline.R
 import com.ivan.m.reddittimeline.databinding.ItemListContentBinding
 import com.ivan.m.reddittimeline.model.ui.ListItem
 
@@ -17,8 +17,14 @@ class PostsAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = getItem(position)
-        holder.idView.text = item?.id
+        holder.authorView.text = item?.author
         holder.contentView.text = item?.title
+        holder.timeStamp.text = item?.created.toString()
+        holder.thumbnailView.load(item?.thumbnail) {
+            crossfade(true)
+            placeholder(R.drawable.ic_image_100)
+            error(R.drawable.ic_image_100)
+        }
         with(holder.itemView) {
             tag = item
             setOnClickListener(onClickListener)
